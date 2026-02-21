@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: EC2 t2.micro with additional EBS volume
+
+Parameters:
+  KeyName:
+    Description: EC2 Key Pair Name
+    Type: AWS::EC2::KeyPair::KeyName
+
+Resources:
+
+  GowriSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  GowriInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      KeyName: !Ref KeyName
+      ImageId: ami-xxxxxxxx   # Replace with your region AMI
+      SecurityGroups:
+        - !Ref GowriSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 8
+            VolumeType: gp3
+      Tags:
+        - Key: Name
+          Value: Gowri-EC2-CF
+
+Outputs:
+  InstanceId:
+    Description: EC2 Instance ID
+    Value: !Ref GowriInstance
